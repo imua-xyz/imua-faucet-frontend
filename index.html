@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Imuachain Faucet</title>
 
-    <!-- Ethers.js library for interacting with the Ethereum blockchain -->
+    <!-- Ethers.js library from a reliable CDN (cdnjs) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" xintegrity="sha512-FDcVY+g7vcDT6Ean2a+b/3vY9R-Q_FdGHDX2U3NmnM3aEwn4iIe+QhDk5meOQIFB0LgT8K8ouPZ2T/42CLY6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- The 'onload' callback is used to render reCAPTCHA after the page loads -->
@@ -316,23 +316,24 @@
 
         // --- GENERAL FAUCET LOGIC ---
         (function() {
-            // Vercel replaces these strings during the build process.
-            const VERCEL_FAUCET_BACKEND_URL = 'process.env.NEXT_PUBLIC_FAUCET_BACKEND_URL';
-            const VERCEL_RECAPTCHA_SITE_KEY = 'process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY';
-            const VERCEL_EXPLORER_URL = 'process.env.NEXT_PUBLIC_EXPLORER_URL';
+            // These placeholders are replaced by the build.js script.
+            const BUILD_FAUCET_BACKEND_URL = '__NEXT_PUBLIC_FAUCET_BACKEND_URL__';
+            const BUILD_RECAPTCHA_SITE_KEY = '__NEXT_PUBLIC_RECAPTCHA_SITE_KEY__';
+            const BUILD_EXPLORER_URL = '__NEXT_PUBLIC_EXPLORER_URL__';
 
             // For local development, we check for `window.localEnv` from `env.js`.
-            const FAUCET_BACKEND_URL = VERCEL_FAUCET_BACKEND_URL.startsWith('process.env')
+            const FAUCET_BACKEND_URL = BUILD_FAUCET_BACKEND_URL.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_FAUCET_BACKEND_URL)
-                : VERCEL_FAUCET_BACKEND_URL;
+                : BUILD_FAUCET_BACKEND_URL;
 
-            const RECAPTCHA_SITE_KEY = VERCEL_RECAPTCHA_SITE_KEY.startsWith('process.env')
+            const RECAPTCHA_SITE_KEY = BUILD_RECAPTCHA_SITE_KEY.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)
-                : VERCEL_RECAPTCHA_SITE_KEY;
+                : BUILD_RECAPTCHA_SITE_KEY;
 
-            const EXPLORER_URL = VERCEL_EXPLORER_URL.startsWith('process.env')
+            const EXPLORER_URL = BUILD_EXPLORER_URL.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_EXPLORER_URL)
-                : VERCEL_EXPLORER_URL;
+                : BUILD_EXPLORER_URL;
+
 
             const form = document.getElementById('faucet-form');
             const requestButton = document.getElementById('request-button');
@@ -407,11 +408,11 @@
             const imethLoadingSpinner = document.getElementById('imeth-loading-spinner');
             const walletInfo = document.getElementById('wallet-info');
             const connectedAddressEl = document.getElementById('connected-address');
-            const VERCEL_IM_ETH_FAUCET_ADDR = 'process.env.NEXT_PUBLIC_IM_ETH_FAUCET_ADDR';
+            const BUILD_IM_ETH_FAUCET_ADDR = '__NEXT_PUBLIC_IM_ETH_FAUCET_ADDR__';
 
-            const IM_ETH_FAUCET_ADDR = VERCEL_IM_ETH_FAUCET_ADDR.startsWith('process.env')
+            const IM_ETH_FAUCET_ADDR = BUILD_IM_ETH_FAUCET_ADDR.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_IM_ETH_FAUCET_ADDR)
-                : VERCEL_IM_ETH_FAUCET_ADDR;
+                : BUILD_IM_ETH_FAUCET_ADDR;
 
             const SEPOLIA_CHAIN_ID = '0xaa36a7'; // 11155111 in hex
             const IM_ETH_FAUCET_ABI = ['function requestTokens()'];
@@ -437,6 +438,7 @@
                     connectWalletBtn.disabled = true;
 
                     await checkAndSwitchNetwork();
+
                     contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
                     requestImethBtn.disabled = false;
 
@@ -479,7 +481,7 @@
                     }
                 }
             };
-            
+
             const requestImethTokens = async () => {
                 if (!contract || !signer) {
                     return showToast('Please connect your wallet first.', 'error');

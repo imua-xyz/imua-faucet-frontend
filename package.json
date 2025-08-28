@@ -1,0 +1,11 @@
+{
+  "name": "faucet-frontend",
+  "version": "1.0.0",
+  "description": "A simple frontend for a crypto faucet.",
+  "main": "index.html",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
