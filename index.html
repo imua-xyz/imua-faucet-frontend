@@ -4,23 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Imuachain Faucet</title>
+    <link rel="icon" href="https://imualogo.s3.us-east-1.amazonaws.com/favicon.svg" type="image/svg+xml">
 
     <!-- Ethers.js library from a reliable CDN (cdnjs) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" xintegrity="sha512-FDcVY+g7vcDT6Ean2a+b/3vY9R-Q_FdGHDX2U3NmnM3aEwn4iIe+QhDk5meOQIFB0LgT8K8ouPZ2T/42CLY6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- The 'onload' callback is used to render reCAPTCHA after the page loads -->
-    <script src="https://www.google.com/recaptcha/api.js?onload=renderRecaptcha&render=explicit" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 
     <!-- Local environment variables (this file should be in .gitignore) -->
     <script src="env.js"></script>
 
     <!-- All styles are consolidated here -->
     <style>
+        /* CSS Variables for Theming */
+        :root {
+            --bg-color: #f9fafb; /* bg-gray-50 */
+            --text-color: #111827; /* text-gray-900 */
+            --container-bg: #ffffff; /* bg-white */
+            --container-border: #e5e7eb; /* border-gray-200 */
+            --input-bg: #f3f4f6; /* bg-gray-100 */
+            --input-border: #d1d5db; /* border-gray-300 */
+            --input-placeholder: #6b7280; /* placeholder-gray-500 */
+            --subtitle-color: #6b7280; /* text-gray-500 */
+            --tab-border: #d1d5db; /* border-gray-300 */
+            --toast-bg: #374151; /* bg-gray-700 */
+            --toast-link: #93c5fd; /* A light blue for links */
+        }
+
+        body[data-theme="dark"] {
+            --bg-color: #111827; /* bg-gray-900 */
+            --text-color: #ffffff; /* text-white */
+            --container-bg: #1f2937; /* bg-gray-800 */
+            --container-border: #374151; /* border-gray-700 */
+            --input-bg: #374151; /* bg-gray-700 */
+            --input-border: #4b5563; /* border-gray-600 */
+            --input-placeholder: #6b7280; /* placeholder-gray-500 */
+            --subtitle-color: #9ca3af; /* text-gray-400 */
+            --tab-border: #374151; /* border-gray-700 */
+            --toast-bg: #333;
+            --toast-link: #67e8f9; /* A brighter cyan */
+        }
+
         /* Base and Font Styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
-            color: #ffffff; /* text-white */
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -28,6 +58,29 @@
             margin: 0;
             padding: 1rem; /* Add padding for smaller screens */
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+        #theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 9999px;
+            color: var(--text-color);
+        }
+        #theme-toggle:hover {
+            background-color: rgba(128, 128, 128, 0.1);
+        }
+        #theme-toggle svg {
+            width: 1.5rem;
+            height: 1.5rem;
         }
 
         /* Main Container */
@@ -36,16 +89,17 @@
             max-width: 28rem; /* max-w-md */
             margin: auto;
             padding: 2rem; /* p-8 */
-            background-color: #1f2937; /* bg-gray-800 */
+            background-color: var(--container-bg);
             border-radius: 1rem; /* rounded-2xl */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-            border: 1px solid #374151; /* border-gray-700 */
+            border: 1px solid var(--container-border);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         /* Tab Navigation */
         .tabs {
             display: flex;
-            border-bottom: 1px solid #374151; /* border-gray-700 */
+            border-bottom: 1px solid var(--tab-border);
             margin-bottom: 2rem; /* mb-8 */
         }
         .tab-btn {
@@ -58,7 +112,7 @@
             border-color: transparent;
             transition: color 0.2s;
             background: none;
-            color: white;
+            color: var(--text-color);
             cursor: pointer;
         }
         .tab-btn:hover {
@@ -71,7 +125,6 @@
 
         /* Panels and Headers */
         .faucet-panel {
-            /* This ensures both panels have the same height, preventing layout shift */
             min-height: 360px;
         }
         .panel-header {
@@ -84,7 +137,7 @@
             color: #22d3ee; /* text-cyan-400 */
         }
         .panel-subtitle {
-            color: #9ca3af; /* text-gray-400 */
+            color: var(--subtitle-color);
             margin-top: 0.5rem; /* mt-2 */
         }
 
@@ -98,21 +151,21 @@
             display: block;
             font-size: 0.875rem; /* text-sm */
             font-weight: 500; /* font-medium */
-            color: #d1d5db; /* text-gray-300 */
+            color: var(--text-color);
             margin-bottom: 0.5rem; /* mb-2 */
         }
         .form-input {
             width: 100%;
             padding: 0.75rem 1rem; /* px-4 py-3 */
-            background-color: #374151; /* bg-gray-700 */
-            border: 1px solid #4b5563; /* border-gray-600 */
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
             border-radius: 0.5rem; /* rounded-lg */
-            color: #ffffff; /* text-white */
+            color: var(--text-color);
             transition: border-color 0.2s, box-shadow 0.2s;
             box-sizing: border-box; /* Ensures padding doesn't affect width */
         }
         .form-input::placeholder {
-            color: #6b7280; /* placeholder-gray-500 */
+            color: var(--input-placeholder);
         }
         .form-input:focus {
             outline: none;
@@ -142,6 +195,7 @@
             background-color: #4b5563; /* disabled:bg-gray-600 */
             cursor: not-allowed;
             transform: none;
+            opacity: 0.5;
         }
         .btn-cyan {
             background-color: #06b6d4; /* bg-cyan-500 */
@@ -168,12 +222,12 @@
         .wallet-info {
             text-align: center;
             padding: 0.75rem; /* p-3 */
-            background-color: #374151; /* bg-gray-700 */
+            background-color: var(--input-bg);
             border-radius: 0.5rem; /* rounded-lg */
         }
         .wallet-label {
             font-size: 0.875rem; /* text-sm */
-            color: #9ca3af; /* text-gray-400 */
+            color: var(--subtitle-color);
         }
         .wallet-address {
             font-family: monospace;
@@ -197,10 +251,11 @@
             bottom: 30px;
             opacity: 0;
             transition: visibility 0s, opacity 0.5s linear;
+            background-color: var(--toast-bg);
         }
         .toast a {
             text-decoration: underline;
-            color: #67e8f9; /* A brighter cyan for better contrast */
+            color: var(--toast-link);
             font-weight: 500;
         }
         .toast.show {
@@ -219,8 +274,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="theme-switcher">
+        <button id="theme-toggle" title="Toggle theme">
+            <svg id="theme-icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-6.364-.386l1.591-1.591M3 12h2.25m.386-6.364l1.591 1.591M12 12a2.25 2.25 0 00-2.25 2.25 2.25 2.25 0 002.25 2.25 2.25 2.25 0 002.25-2.25A2.25 2.25 0 0012 12z" />
+            </svg>
+            <svg id="theme-icon-moon" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25c0 5.385 4.365 9.75 9.75 9.75 2.138 0 4.125-.585 5.752-1.582z" />
+            </svg>
+        </button>
+    </div>
+
     <div class="faucet-container">
-        
+
         <!-- Tab Navigation -->
         <div class="tabs">
             <button id="general-tab-btn" class="tab-btn active">IMUA Faucet</button>
@@ -239,10 +305,11 @@
                     <input type="text" id="wallet-address" name="wallet-address" required class="form-input" placeholder="0x... or im1...">
                 </div>
                 <div class="recaptcha-container">
-                     <div id="recaptcha-widget"></div>
+                     <div id="recaptcha-light"></div>
+                     <div id="recaptcha-dark" class="hidden"></div>
                 </div>
                 <button type="submit" id="request-button" class="btn btn-cyan">
-                    <span id="button-text">Send Me Tokens</span>
+                    <span id="button-text">Request testnet IMUA</span>
                     <span id="loading-spinner" class="hidden">
                         <svg class="spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -266,7 +333,7 @@
                 </div>
                 <button id="connect-wallet-btn" class="btn btn-indigo">Connect Wallet</button>
                 <button id="request-imeth-btn" class="btn btn-cyan" disabled>
-                    <span id="imeth-button-text">Request imETH</span>
+                    <span id="imeth-button-text">Request Sepolia imETH</span>
                     <span id="imeth-loading-spinner" class="hidden">
                         <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -281,10 +348,80 @@
     <div id="toast" class="toast"></div>
 
     <script>
+        // --- THEME SWITCHER & RECAPTCHA LOGIC ---
+        (function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+            const recaptchaLightContainer = document.getElementById('recaptcha-light');
+            const recaptchaDarkContainer = document.getElementById('recaptcha-dark');
+
+            let recaptchaLightId, recaptchaDarkId;
+
+            const BUILD_RECAPTCHA_SITE_KEY = '__NEXT_PUBLIC_RECAPTCHA_SITE_KEY__';
+            const RECAPTCHA_SITE_KEY = BUILD_RECAPTCHA_SITE_KEY.startsWith('__')
+                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)
+                : BUILD_RECAPTCHA_SITE_KEY;
+
+            function applyTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                    recaptchaLightContainer.classList.add('hidden');
+                    recaptchaDarkContainer.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                    recaptchaLightContainer.classList.remove('hidden');
+                    recaptchaDarkContainer.classList.add('hidden');
+                }
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            window.onRecaptchaLoad = function() {
+                const siteKey = RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+                if (!RECAPTCHA_SITE_KEY) {
+                    console.warn("Using default reCAPTCHA test key. Create env.js or set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in Vercel.");
+                }
+
+                recaptchaLightId = grecaptcha.render('recaptcha-light', { 'sitekey' : siteKey, 'theme' : 'light' });
+                recaptchaDarkId = grecaptcha.render('recaptcha-dark', { 'sitekey' : siteKey, 'theme' : 'dark' });
+
+                // Apply theme after widgets are rendered to show the correct one
+                const currentTheme = document.body.getAttribute('data-theme') || 'light';
+                applyTheme(currentTheme);
+            };
+
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (prefersDark) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+
+            // Make widget IDs available globally for the other script block
+            window.getRecaptchaInfo = () => ({
+                theme: document.body.getAttribute('data-theme') || 'light',
+                lightId: recaptchaLightId,
+                darkId: recaptchaDarkId
+            });
+        })();
+
         // --- SHARED ELEMENTS & FUNCTIONS ---
         const toast = document.getElementById('toast');
         function showToast(message, type = 'success') {
-            toast.innerHTML = message; // Use innerHTML to render the link
+            toast.innerHTML = message;
             let typeClass = 'bg-green-500';
             if (type === 'error') typeClass = 'bg-red-500';
             if (type === 'info') typeClass = 'bg-blue-500';
@@ -316,44 +453,29 @@
 
         // --- GENERAL FAUCET LOGIC ---
         (function() {
-            // These placeholders are replaced by the build.js script.
             const BUILD_FAUCET_BACKEND_URL = '__NEXT_PUBLIC_FAUCET_BACKEND_URL__';
-            const BUILD_RECAPTCHA_SITE_KEY = '__NEXT_PUBLIC_RECAPTCHA_SITE_KEY__';
             const BUILD_EXPLORER_URL = '__NEXT_PUBLIC_EXPLORER_URL__';
 
-            // For local development, we check for `window.localEnv` from `env.js`.
             const FAUCET_BACKEND_URL = BUILD_FAUCET_BACKEND_URL.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_FAUCET_BACKEND_URL)
                 : BUILD_FAUCET_BACKEND_URL;
 
-            const RECAPTCHA_SITE_KEY = BUILD_RECAPTCHA_SITE_KEY.startsWith('__')
-                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)
-                : BUILD_RECAPTCHA_SITE_KEY;
-
             const EXPLORER_URL = BUILD_EXPLORER_URL.startsWith('__')
                 ? (window.localEnv && window.localEnv.NEXT_PUBLIC_EXPLORER_URL)
                 : BUILD_EXPLORER_URL;
-
 
             const form = document.getElementById('faucet-form');
             const requestButton = document.getElementById('request-button');
             const buttonText = document.getElementById('button-text');
             const loadingSpinner = document.getElementById('loading-spinner');
 
-            window.renderRecaptcha = function() {
-                // Use the loaded key, or a default test key as a final fallback.
-                const siteKey = RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
-
-                if (!RECAPTCHA_SITE_KEY) {
-                    console.warn("Using default reCAPTCHA test key. Create env.js or set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in Vercel.");
-                }
-                grecaptcha.render('recaptcha-widget', { 'sitekey' : siteKey, 'theme' : 'dark' });
-            };
-
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const walletAddress = document.getElementById('wallet-address').value;
-                const captchaResponse = grecaptcha.getResponse();
+
+                const { theme, lightId, darkId } = window.getRecaptchaInfo();
+                const activeWidgetId = theme === 'dark' ? darkId : lightId;
+                const captchaResponse = grecaptcha.getResponse(activeWidgetId);
 
                 if (!captchaResponse) {
                     showToast('Please complete the captcha.', 'error');
@@ -395,7 +517,7 @@
                     requestButton.disabled = false;
                     buttonText.classList.remove('hidden');
                     loadingSpinner.classList.add('hidden');
-                    grecaptcha.reset();
+                    grecaptcha.reset(activeWidgetId);
                 }
             });
         })();
