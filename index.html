@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imuachain Faucet</title>
+
+    <!-- Ethers.js library for interacting with the Ethereum blockchain -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" xintegrity="sha512-FDcVY+g7vcDT6Ean2a+b/3vY9R-Q_FdGHDX2U3NmnM3aEwn4iIe+QhDk5meOQIFB0LgT8K8ouPZ2T/42CLY6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- The 'onload' callback is used to render reCAPTCHA after the page loads -->
+    <script src="https://www.google.com/recaptcha/api.js?onload=renderRecaptcha&render=explicit" async defer></script>
+
+    <!-- Local environment variables (this file should be in .gitignore) -->
+    <script src="env.js"></script>
+
+    <!-- All styles are consolidated here -->
+    <style>
+        /* Base and Font Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #ffffff; /* text-white */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem; /* Add padding for smaller screens */
+            box-sizing: border-box;
+        }
+
+        /* Main Container */
+        .faucet-container {
+            width: 100%;
+            max-width: 28rem; /* max-w-md */
+            margin: auto;
+            padding: 2rem; /* p-8 */
+            background-color: #1f2937; /* bg-gray-800 */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            border: 1px solid #374151; /* border-gray-700 */
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #374151; /* border-gray-700 */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .tab-btn {
+            flex: 1;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            text-align: center;
+            font-weight: 500; /* font-medium */
+            border-bottom-width: 2px;
+            border-color: transparent;
+            transition: color 0.2s;
+            background: none;
+            color: white;
+            cursor: pointer;
+        }
+        .tab-btn:hover {
+            color: #22d3ee; /* hover:text-cyan-400 */
+        }
+        .tab-btn.active {
+            border-color: #06b6d4; /* border-cyan-500 */
+            color: #06b6d4; /* text-cyan-500 */
+        }
+
+        /* Panels and Headers */
+        .faucet-panel {
+            /* This ensures both panels have the same height, preventing layout shift */
+            min-height: 360px;
+        }
+        .panel-header {
+            text-align: center;
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .panel-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #22d3ee; /* text-cyan-400 */
+        }
+        .panel-subtitle {
+            color: #9ca3af; /* text-gray-400 */
+            margin-top: 0.5rem; /* mt-2 */
+        }
+
+        /* Forms and Inputs */
+        .faucet-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* space-y-6 */
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #d1d5db; /* text-gray-300 */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem; /* px-4 py-3 */
+            background-color: #374151; /* bg-gray-700 */
+            border: 1px solid #4b5563; /* border-gray-600 */
+            border-radius: 0.5rem; /* rounded-lg */
+            color: #ffffff; /* text-white */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        .form-input::placeholder {
+            color: #6b7280; /* placeholder-gray-500 */
+        }
+        .form-input:focus {
+            outline: none;
+            --tw-ring-color: #06b6d4; /* ring-cyan-500 */
+            box-shadow: 0 0 0 2px var(--tw-ring-color);
+        }
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            color: #ffffff; /* text-white */
+            font-weight: 700; /* font-bold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .btn:disabled {
+            background-color: #4b5563; /* disabled:bg-gray-600 */
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-cyan {
+            background-color: #06b6d4; /* bg-cyan-500 */
+        }
+        .btn-cyan:hover:not(:disabled) {
+            background-color: #0891b2; /* hover:bg-cyan-600 */
+        }
+        .btn-indigo {
+            background-color: #6366f1; /* bg-indigo-500 */
+        }
+        .btn-indigo:hover:not(:disabled) {
+            background-color: #4f46e5; /* hover:bg-indigo-600 */
+        }
+        .btn .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Wallet Info */
+        .wallet-info {
+            text-align: center;
+            padding: 0.75rem; /* p-3 */
+            background-color: #374151; /* bg-gray-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .wallet-label {
+            font-size: 0.875rem; /* text-sm */
+            color: #9ca3af; /* text-gray-400 */
+        }
+        .wallet-address {
+            font-family: monospace;
+            color: #22d3ee; /* text-cyan-400 */
+            font-size: 0.875rem; /* text-sm */
+            word-break: break-all;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+        .toast a {
+            text-decoration: underline;
+            color: #67e8f9; /* A brighter cyan for better contrast */
+            font-weight: 500;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .toast.bg-green-500 { background-color: #22c55e; }
+        .toast.bg-red-500 { background-color: #ef4444; }
+        .toast.bg-blue-500 { background-color: #3b82f6; }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="faucet-container">
+        
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button id="general-tab-btn" class="tab-btn active">IMUA Faucet</button>
+            <button id="imeth-tab-btn" class="tab-btn">imETH Faucet</button>
+        </div>
+
+        <!-- General Faucet Panel -->
+        <div id="general-faucet-panel" class="faucet-panel">
+            <div class="panel-header">
+                <h1 class="panel-title">IMUA Faucet</h1>
+                <p class="panel-subtitle">Get IMUA tokens for your Imuachain address.</p>
+            </div>
+            <form id="faucet-form" class="faucet-form">
+                <div>
+                    <label for="wallet-address" class="form-label">Your Wallet Address</label>
+                    <input type="text" id="wallet-address" name="wallet-address" required class="form-input" placeholder="0x...">
+                </div>
+                <div class="recaptcha-container">
+                     <div id="recaptcha-widget"></div>
+                </div>
+                <button type="submit" id="request-button" class="btn btn-cyan">
+                    <span id="button-text">Send Me Tokens</span>
+                    <span id="loading-spinner" class="hidden">
+                        <svg class="spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- imETH Faucet Panel (hidden by default) -->
+        <div id="imeth-faucet-panel" class="faucet-panel hidden">
+             <div class="panel-header">
+                <h1 class="panel-title">imETH Faucet</h1>
+                <p class="panel-subtitle">Claim Sepolia imETH tokens directly.</p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div id="wallet-info" class="wallet-info hidden">
+                    <p class="wallet-label">Connected Wallet:</p>
+                    <p id="connected-address" class="wallet-address"></p>
+                </div>
+                <button id="connect-wallet-btn" class="btn btn-indigo">Connect Wallet</button>
+                <button id="request-imeth-btn" class="btn btn-cyan" disabled>
+                    <span id="imeth-button-text">Request imETH</span>
+                    <span id="imeth-loading-spinner" class="hidden">
+                        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // --- SHARED ELEMENTS & FUNCTIONS ---
+        const toast = document.getElementById('toast');
+        function showToast(message, type = 'success') {
+            toast.innerHTML = message; // Use innerHTML to render the link
+            let typeClass = 'bg-green-500';
+            if (type === 'error') typeClass = 'bg-red-500';
+            if (type === 'info') typeClass = 'bg-blue-500';
+            toast.className = `toast show ${typeClass}`;
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 5000);
+        }
+
+        // --- TAB SWITCHING LOGIC ---
+        const generalTabBtn = document.getElementById('general-tab-btn');
+        const imethTabBtn = document.getElementById('imeth-tab-btn');
+        const generalPanel = document.getElementById('general-faucet-panel');
+        const imethPanel = document.getElementById('imeth-faucet-panel');
+
+        generalTabBtn.addEventListener('click', () => {
+            generalTabBtn.classList.add('active');
+            imethTabBtn.classList.remove('active');
+            generalPanel.classList.remove('hidden');
+            imethPanel.classList.add('hidden');
+        });
+
+        imethTabBtn.addEventListener('click', () => {
+            imethTabBtn.classList.add('active');
+            generalTabBtn.classList.remove('active');
+            imethPanel.classList.remove('hidden');
+            generalPanel.classList.add('hidden');
+        });
+
+        // --- GENERAL FAUCET LOGIC ---
+        (function() {
+            // Vercel replaces these strings during the build process.
+            const VERCEL_FAUCET_BACKEND_URL = 'process.env.NEXT_PUBLIC_FAUCET_BACKEND_URL';
+            const VERCEL_RECAPTCHA_SITE_KEY = 'process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY';
+            const VERCEL_EXPLORER_URL = 'process.env.NEXT_PUBLIC_EXPLORER_URL';
+
+            // For local development, we check for `window.localEnv` from `env.js`.
+            const FAUCET_BACKEND_URL = VERCEL_FAUCET_BACKEND_URL.startsWith('process.env')
+                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_FAUCET_BACKEND_URL)
+                : VERCEL_FAUCET_BACKEND_URL;
+
+            const RECAPTCHA_SITE_KEY = VERCEL_RECAPTCHA_SITE_KEY.startsWith('process.env')
+                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)
+                : VERCEL_RECAPTCHA_SITE_KEY;
+
+            const EXPLORER_URL = VERCEL_EXPLORER_URL.startsWith('process.env')
+                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_EXPLORER_URL)
+                : VERCEL_EXPLORER_URL;
+
+            const form = document.getElementById('faucet-form');
+            const requestButton = document.getElementById('request-button');
+            const buttonText = document.getElementById('button-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            window.renderRecaptcha = function() {
+                // Use the loaded key, or a default test key as a final fallback.
+                const siteKey = RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+
+                if (!RECAPTCHA_SITE_KEY) {
+                    console.warn("Using default reCAPTCHA test key. Create env.js or set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in Vercel.");
+                }
+                grecaptcha.render('recaptcha-widget', { 'sitekey' : siteKey, 'theme' : 'dark' });
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const walletAddress = document.getElementById('wallet-address').value;
+                const captchaResponse = grecaptcha.getResponse();
+
+                if (!captchaResponse) {
+                    showToast('Please complete the captcha.', 'error');
+                    return;
+                }
+
+                requestButton.disabled = true;
+                buttonText.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+
+                try {
+                    const apiUrl = FAUCET_BACKEND_URL || 'http://localhost:3001/api/faucet';
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address: walletAddress, captcha: captchaResponse }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ error: 'Invalid response from server.' }));
+                        throw new Error(errorData.error || `Server error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (EXPLORER_URL && data.txHash) {
+                        const shortHash = data.txHash.substring(0, 10) + '...';
+                        const explorerLink = `<a href="${EXPLORER_URL}/tx/${data.txHash}" target="_blank" rel="noopener noreferrer">${shortHash}</a>`;
+                        showToast(`Success! Tx: ${explorerLink}`, 'success');
+                    } else {
+                        showToast(`Success! Tokens sent.`, 'success');
+                    }
+
+                } catch (error) {
+                    console.error('Faucet request error:', error);
+                    showToast(error.message, 'error');
+                } finally {
+                    requestButton.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    loadingSpinner.classList.add('hidden');
+                    grecaptcha.reset();
+                }
+            });
+        })();
+
+        // --- IMETH FAUCET (METAMASK) LOGIC ---
+        (function() {
+            const connectWalletBtn = document.getElementById('connect-wallet-btn');
+            const requestImethBtn = document.getElementById('request-imeth-btn');
+            const imethButtonText = document.getElementById('imeth-button-text');
+            const imethLoadingSpinner = document.getElementById('imeth-loading-spinner');
+            const walletInfo = document.getElementById('wallet-info');
+            const connectedAddressEl = document.getElementById('connected-address');
+            const VERCEL_IM_ETH_FAUCET_ADDR = 'process.env.NEXT_PUBLIC_IM_ETH_FAUCET_ADDR';
+
+            const IM_ETH_FAUCET_ADDR = VERCEL_IM_ETH_FAUCET_ADDR.startsWith('process.env')
+                ? (window.localEnv && window.localEnv.NEXT_PUBLIC_IM_ETH_FAUCET_ADDR)
+                : VERCEL_IM_ETH_FAUCET_ADDR;
+
+            const SEPOLIA_CHAIN_ID = '0xaa36a7'; // 11155111 in hex
+            const IM_ETH_FAUCET_ABI = ['function requestTokens()'];
+
+            let provider;
+            let signer;
+            let contract;
+
+            const connectWallet = async () => {
+                if (typeof window.ethereum === 'undefined') {
+                    return showToast('MetaMask is not installed!', 'error');
+                }
+
+                try {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    signer = provider.getSigner();
+                    const address = await signer.getAddress();
+
+                    walletInfo.classList.remove('hidden');
+                    connectedAddressEl.textContent = address;
+                    connectWalletBtn.textContent = 'Wallet Connected';
+                    connectWalletBtn.disabled = true;
+
+                    await checkAndSwitchNetwork();
+                    contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
+                    requestImethBtn.disabled = false;
+
+                } catch (error) {
+                    console.error("Connection failed:", error);
+                    showToast('Wallet connection failed.', 'error');
+                }
+            };
+
+            const checkAndSwitchNetwork = async () => {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== SEPOLIA_CHAIN_ID) {
+                    showToast('Please switch to the Sepolia network.');
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: SEPOLIA_CHAIN_ID }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: SEPOLIA_CHAIN_ID,
+                                        chainName: 'Sepolia test network',
+                                        rpcUrls: ['https://rpc.sepolia.org'],
+                                        nativeCurrency: { name: 'SepoliaETH', decimals: 18, symbol: 'ETH' },
+                                        blockExplorerUrls: ['https://sepolia.etherscan.io']
+                                    }],
+                                });
+                            } catch (addError) {
+                                console.error('Failed to add Sepolia network:', addError);
+                                showToast('Failed to add Sepolia network.', 'error');
+                            }
+                        } else {
+                            console.error('Failed to switch network:', switchError);
+                            showToast('Failed to switch network.', 'error');
+                        }
+                    }
+                }
+            };
+            
+            const requestImethTokens = async () => {
+                if (!contract || !signer) {
+                    return showToast('Please connect your wallet first.', 'error');
+                }
+
+                imethButtonText.classList.add('hidden');
+                imethLoadingSpinner.classList.remove('hidden');
+                requestImethBtn.disabled = true;
+
+                try {
+                    showToast('Sending transaction... please wait.', 'info');
+                    const tx = await contract.requestTokens();
+                    console.log('Transaction sent:', tx.hash);
+                    showToast('Transaction submitted! Waiting for confirmation...', 'info');
+
+                    await tx.wait();
+
+                    const explorerBaseUrl = 'https://sepolia.etherscan.io';
+                    const shortHash = tx.hash.substring(0, 10) + '...';
+                    const explorerLink = `<a href="${explorerBaseUrl}/tx/${tx.hash}" target="_blank" rel="noopener noreferrer">${shortHash}</a>`;
+                    showToast(`Success! imETH claimed. Tx: ${explorerLink}`, 'success');
+
+                } catch (error) {
+                    console.error('Transaction failed:', error);
+                    const errorMessage = error.data ? error.data.message : (error.message || "Transaction rejected or failed.");
+                    showToast(`Error: ${errorMessage}`, 'error');
+                } finally {
+                    imethButtonText.classList.remove('hidden');
+                    imethLoadingSpinner.classList.add('hidden');
+                    requestImethBtn.disabled = false;
+                }
+            };
+
+            connectWalletBtn.addEventListener('click', connectWallet);
+            requestImethBtn.addEventListener('click', requestImethTokens);
+        })();
+    </script>
+</body>
+</html>
