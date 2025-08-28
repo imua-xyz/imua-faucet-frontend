@@ -432,24 +432,41 @@
         }
 
         // --- TAB SWITCHING LOGIC ---
-        const generalTabBtn = document.getElementById('general-tab-btn');
-        const imethTabBtn = document.getElementById('imeth-tab-btn');
-        const generalPanel = document.getElementById('general-faucet-panel');
-        const imethPanel = document.getElementById('imeth-faucet-panel');
+        (function() {
+            const generalTabBtn = document.getElementById('general-tab-btn');
+            const imethTabBtn = document.getElementById('imeth-tab-btn');
+            const generalPanel = document.getElementById('general-faucet-panel');
+            const imethPanel = document.getElementById('imeth-faucet-panel');
 
-        generalTabBtn.addEventListener('click', () => {
-            generalTabBtn.classList.add('active');
-            imethTabBtn.classList.remove('active');
-            generalPanel.classList.remove('hidden');
-            imethPanel.classList.add('hidden');
-        });
+            function switchTab(tabName) {
+                if (tabName === 'imETH') {
+                    generalTabBtn.classList.remove('active');
+                    imethTabBtn.classList.add('active');
+                    generalPanel.classList.add('hidden');
+                    imethPanel.classList.remove('hidden');
+                    window.location.hash = 'imETH';
+                } else { // Default to IMUA
+                    imethTabBtn.classList.remove('active');
+                    generalTabBtn.classList.add('active');
+                    imethPanel.classList.add('hidden');
+                    generalPanel.classList.remove('hidden');
+                    window.location.hash = 'IMUA';
+                }
+            }
 
-        imethTabBtn.addEventListener('click', () => {
-            imethTabBtn.classList.add('active');
-            generalTabBtn.classList.remove('active');
-            imethPanel.classList.remove('hidden');
-            generalPanel.classList.add('hidden');
-        });
+            generalTabBtn.addEventListener('click', () => switchTab('IMUA'));
+            imethTabBtn.addEventListener('click', () => switchTab('imETH'));
+
+            // On page load, check the hash
+            document.addEventListener('DOMContentLoaded', () => {
+                const hash = window.location.hash.substring(1);
+                if (hash === 'imETH') {
+                    switchTab('imETH');
+                } else {
+                    switchTab('IMUA'); // Default
+                }
+            });
+        })();
 
         // --- GENERAL FAUCET LOGIC ---
         (function() {
