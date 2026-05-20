@@ -681,20 +681,48 @@
                 }
 
                 try {
+                    // 1. Scaffold provider
                     // this `any` tells the provider that we will accept any network
                     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+                    // 2. Get approved account
                     await provider.send("eth_requestAccounts", []);
                     signer = provider.getSigner();
                     const address = await signer.getAddress();
 
+                    // 3. Now wallet is connected, but the network may be different
                     walletInfo.classList.remove('hidden');
                     connectedAddressEl.textContent = address;
                     connectWalletBtn.textContent = 'Wallet Connected';
                     connectWalletBtn.disabled = true;
 
+                    // 4. Set up the contract
+                    contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
+
+                    // 5a. Listen for network changes
+                    provider.on("network", async (network, oldNetwork) => {
+                        if (oldNetwork) {
+                            signer = provider.getSigner();
+                            connectedAddressEl.textContent = await signer.getAddress();
+                            contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
+                        }
+                    });
+
+                    // 5b. Listen for address changes
+                    provider.on('accountsChanged', async (accounts) => {
+                        if (accounts.length > 0) {
+                            signer = provider.getSigner();
+                            connectedAddressEl.textContent = accounts[0];
+                            contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
+                        } else {
+                            window.location.reload();
+                        }
+                    });
+
+                    // 6. Validate network
                     await checkAndSwitchNetwork();
 
-                    contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
+                    // 7. Enable request button after switching the network
                     requestImethBtn.disabled = false;
 
                 } catch (error) {
