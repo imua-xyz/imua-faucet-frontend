@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +7,7 @@
     <link rel="icon" href="https://imualogo.s3.us-east-1.amazonaws.com/favicon.svg" type="image/svg+xml">
 
     <!-- Ethers.js library from a reliable CDN (cdnjs) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"
-        xintegrity="sha512-FDcVY+g7vcDT6Ean2a+b/3vY9R-Q_FdGHDX2U3NmnM3aEwn4iIe+QhDk5meOQIFB0LgT8K8ouPZ2T/42CLY6g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" xintegrity="sha512-FDcVY+g7vcDT6Ean2a+b/3vY9R-Q_FdGHDX2U3NmnM3aEwn4iIe+QhDk5meOQIFB0LgT8K8ouPZ2T/42CLY6g==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 
     <!-- The 'onload' callback is used to render reCAPTCHA after the page loads -->
     <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
@@ -22,52 +19,31 @@
     <style>
         /* CSS Variables for Theming */
         :root {
-            --bg-color: #f9fafb;
-            /* bg-gray-50 */
-            --text-color: #111827;
-            /* text-gray-900 */
-            --container-bg: #ffffff;
-            /* bg-white */
-            --container-border: #e5e7eb;
-            /* border-gray-200 */
-            --input-bg: #f3f4f6;
-            /* bg-gray-100 */
-            --input-border: #d1d5db;
-            /* border-gray-300 */
-            --input-placeholder: #6b7280;
-            /* placeholder-gray-500 */
-            --subtitle-color: #6b7280;
-            /* text-gray-500 */
-            --tab-border: #d1d5db;
-            /* border-gray-300 */
-            --toast-bg: #374151;
-            /* bg-gray-700 */
-            --toast-link: #93c5fd;
-            /* A light blue for links */
+            --bg-color: #f9fafb; /* bg-gray-50 */
+            --text-color: #111827; /* text-gray-900 */
+            --container-bg: #ffffff; /* bg-white */
+            --container-border: #e5e7eb; /* border-gray-200 */
+            --input-bg: #f3f4f6; /* bg-gray-100 */
+            --input-border: #d1d5db; /* border-gray-300 */
+            --input-placeholder: #6b7280; /* placeholder-gray-500 */
+            --subtitle-color: #6b7280; /* text-gray-500 */
+            --tab-border: #d1d5db; /* border-gray-300 */
+            --toast-bg: #374151; /* bg-gray-700 */
+            --toast-link: #93c5fd; /* A light blue for links */
         }
 
         body[data-theme="dark"] {
-            --bg-color: #111827;
-            /* bg-gray-900 */
-            --text-color: #ffffff;
-            /* text-white */
-            --container-bg: #1f2937;
-            /* bg-gray-800 */
-            --container-border: #374151;
-            /* border-gray-700 */
-            --input-bg: #374151;
-            /* bg-gray-700 */
-            --input-border: #4b5563;
-            /* border-gray-600 */
-            --input-placeholder: #6b7280;
-            /* placeholder-gray-500 */
-            --subtitle-color: #9ca3af;
-            /* text-gray-400 */
-            --tab-border: #374151;
-            /* border-gray-700 */
+            --bg-color: #111827; /* bg-gray-900 */
+            --text-color: #ffffff; /* text-white */
+            --container-bg: #1f2937; /* bg-gray-800 */
+            --container-border: #374151; /* border-gray-700 */
+            --input-bg: #374151; /* bg-gray-700 */
+            --input-border: #4b5563; /* border-gray-600 */
+            --input-placeholder: #6b7280; /* placeholder-gray-500 */
+            --subtitle-color: #9ca3af; /* text-gray-400 */
+            --tab-border: #374151; /* border-gray-700 */
             --toast-bg: #333;
-            --toast-link: #67e8f9;
-            /* A brighter cyan */
+            --toast-link: #67e8f9; /* A brighter cyan */
         }
 
         /* Base and Font Styles */
@@ -80,8 +56,7 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 1rem;
-            /* Add padding for smaller screens */
+            padding: 1rem; /* Add padding for smaller screens */
             box-sizing: border-box;
             transition: background-color 0.3s, color 0.3s;
         }
@@ -92,7 +67,6 @@
             top: 1.5rem;
             right: 1.5rem;
         }
-
         #theme-toggle {
             background: none;
             border: none;
@@ -101,11 +75,9 @@
             border-radius: 9999px;
             color: var(--text-color);
         }
-
         #theme-toggle:hover {
             background-color: rgba(128, 128, 128, 0.1);
         }
-
         #theme-toggle svg {
             width: 1.5rem;
             height: 1.5rem;
@@ -114,16 +86,12 @@
         /* Main Container */
         .faucet-container {
             width: 100%;
-            max-width: 28rem;
-            /* max-w-md */
+            max-width: 28rem; /* max-w-md */
             margin: auto;
-            padding: 2rem;
-            /* p-8 */
+            padding: 2rem; /* p-8 */
             background-color: var(--container-bg);
-            border-radius: 1rem;
-            /* rounded-2xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            /* shadow-lg */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
             border: 1px solid var(--container-border);
             transition: background-color 0.3s, border-color 0.3s;
         }
@@ -132,17 +100,14 @@
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--tab-border);
-            margin-bottom: 2rem;
-            /* mb-8 */
+            margin-bottom: 2rem; /* mb-8 */
         }
-
         .tab-btn {
             flex: 1;
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             text-align: center;
-            font-weight: 500;
-            /* font-medium */
+            font-weight: 500; /* font-medium */
             border-bottom-width: 2px;
             border-color: transparent;
             transition: color 0.2s;
@@ -150,89 +115,63 @@
             color: var(--text-color);
             cursor: pointer;
         }
-
         .tab-btn:hover {
-            color: #22d3ee;
-            /* hover:text-cyan-400 */
+            color: #22d3ee; /* hover:text-cyan-400 */
         }
-
         .tab-btn.active {
-            border-color: #06b6d4;
-            /* border-cyan-500 */
-            color: #06b6d4;
-            /* text-cyan-500 */
+            border-color: #06b6d4; /* border-cyan-500 */
+            color: #06b6d4; /* text-cyan-500 */
         }
 
         /* Panels and Headers */
         .faucet-panel {
             min-height: 360px;
         }
-
         .panel-header {
             text-align: center;
-            margin-bottom: 2rem;
-            /* mb-8 */
+            margin-bottom: 2rem; /* mb-8 */
         }
-
         .panel-title {
-            font-size: 1.875rem;
-            /* text-3xl */
-            font-weight: 700;
-            /* font-bold */
-            color: #22d3ee;
-            /* text-cyan-400 */
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #22d3ee; /* text-cyan-400 */
         }
-
         .panel-subtitle {
             color: var(--subtitle-color);
-            margin-top: 0.5rem;
-            /* mt-2 */
+            margin-top: 0.5rem; /* mt-2 */
         }
 
         /* Forms and Inputs */
         .faucet-form {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            /* space-y-6 */
+            gap: 1.5rem; /* space-y-6 */
         }
-
         .form-label {
             display: block;
-            font-size: 0.875rem;
-            /* text-sm */
-            font-weight: 500;
-            /* font-medium */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
             color: var(--text-color);
-            margin-bottom: 0.5rem;
-            /* mb-2 */
+            margin-bottom: 0.5rem; /* mb-2 */
         }
-
         .form-input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            /* px-4 py-3 */
+            padding: 0.75rem 1rem; /* px-4 py-3 */
             background-color: var(--input-bg);
             border: 1px solid var(--input-border);
-            border-radius: 0.5rem;
-            /* rounded-lg */
+            border-radius: 0.5rem; /* rounded-lg */
             color: var(--text-color);
             transition: border-color 0.2s, box-shadow 0.2s;
-            box-sizing: border-box;
-            /* Ensures padding doesn't affect width */
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
         }
-
         .form-input::placeholder {
             color: var(--input-placeholder);
         }
-
         .form-input:focus {
             outline: none;
-            --tw-ring-color: #06b6d4;
-            /* ring-cyan-500 */
+            --tw-ring-color: #06b6d4; /* ring-cyan-500 */
             box-shadow: 0 0 0 2px var(--tw-ring-color);
         }
-
         .recaptcha-container {
             display: flex;
             justify-content: center;
@@ -241,88 +180,59 @@
         /* Buttons */
         .btn {
             width: 100%;
-            color: #ffffff;
-            /* text-white */
-            font-weight: 700;
-            /* font-bold */
-            padding: 0.75rem 1rem;
-            /* py-3 px-4 */
-            border-radius: 0.5rem;
-            /* rounded-lg */
+            color: #ffffff; /* text-white */
+            font-weight: 700; /* font-bold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
             border: none;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
         }
-
         .btn:hover {
             transform: scale(1.05);
         }
-
         .btn:disabled {
-            background-color: #4b5563;
-            /* disabled:bg-gray-600 */
+            background-color: #4b5563; /* disabled:bg-gray-600 */
             cursor: not-allowed;
             transform: none;
             opacity: 0.5;
         }
-
         .btn-cyan {
-            background-color: #06b6d4;
-            /* bg-cyan-500 */
+            background-color: #06b6d4; /* bg-cyan-500 */
         }
-
         .btn-cyan:hover:not(:disabled) {
-            background-color: #0891b2;
-            /* hover:bg-cyan-600 */
+            background-color: #0891b2; /* hover:bg-cyan-600 */
         }
-
         .btn-indigo {
-            background-color: #6366f1;
-            /* bg-indigo-500 */
+            background-color: #6366f1; /* bg-indigo-500 */
         }
-
         .btn-indigo:hover:not(:disabled) {
-            background-color: #4f46e5;
-            /* hover:bg-indigo-600 */
+            background-color: #4f46e5; /* hover:bg-indigo-600 */
         }
-
         .btn .spinner {
             display: inline-block;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* Wallet Info */
         .wallet-info {
             text-align: center;
-            padding: 0.75rem;
-            /* p-3 */
+            padding: 0.75rem; /* p-3 */
             background-color: var(--input-bg);
-            border-radius: 0.5rem;
-            /* rounded-lg */
+            border-radius: 0.5rem; /* rounded-lg */
         }
-
         .wallet-label {
-            font-size: 0.875rem;
-            /* text-sm */
+            font-size: 0.875rem; /* text-sm */
             color: var(--subtitle-color);
         }
-
         .wallet-address {
             font-family: monospace;
-            color: #22d3ee;
-            /* text-cyan-400 */
-            font-size: 0.875rem;
-            /* text-sm */
+            color: #22d3ee; /* text-cyan-400 */
+            font-size: 0.875rem; /* text-sm */
             word-break: break-all;
         }
 
@@ -343,29 +253,18 @@
             transition: visibility 0s, opacity 0.5s linear;
             background-color: var(--toast-bg);
         }
-
         .toast a {
             text-decoration: underline;
             color: var(--toast-link);
             font-weight: 500;
         }
-
         .toast.show {
             visibility: visible;
             opacity: 1;
         }
-
-        .toast.bg-green-500 {
-            background-color: #22c55e;
-        }
-
-        .toast.bg-red-500 {
-            background-color: #ef4444;
-        }
-
-        .toast.bg-blue-500 {
-            background-color: #3b82f6;
-        }
+        .toast.bg-green-500 { background-color: #22c55e; }
+        .toast.bg-red-500 { background-color: #ef4444; }
+        .toast.bg-blue-500 { background-color: #3b82f6; }
 
         /* Utility Classes */
         .hidden {
@@ -374,19 +273,14 @@
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <div class="theme-switcher">
         <button id="theme-toggle" title="Toggle theme">
-            <svg id="theme-icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-6.364-.386l1.591-1.591M3 12h2.25m.386-6.364l1.591 1.591M12 12a2.25 2.25 0 00-2.25 2.25 2.25 2.25 0 002.25 2.25 2.25 2.25 0 002.25-2.25A2.25 2.25 0 0012 12z" />
+            <svg id="theme-icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-6.364-.386l1.591-1.591M3 12h2.25m.386-6.364l1.591 1.591M12 12a2.25 2.25 0 00-2.25 2.25 2.25 2.25 0 002.25 2.25 2.25 2.25 0 002.25-2.25A2.25 2.25 0 0012 12z" />
             </svg>
-            <svg id="theme-icon-moon" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25c0 5.385 4.365 9.75 9.75 9.75 2.138 0 4.125-.585 5.752-1.582z" />
+            <svg id="theme-icon-moon" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25c0 5.385 4.365 9.75 9.75 9.75 2.138 0 4.125-.585 5.752-1.582z" />
             </svg>
         </button>
     </div>
@@ -408,23 +302,18 @@
             <form id="faucet-form" class="faucet-form">
                 <div>
                     <label for="wallet-address" class="form-label">Your Wallet Address</label>
-                    <input type="text" id="wallet-address" name="wallet-address" required class="form-input"
-                        placeholder="0x... or im1...">
+                    <input type="text" id="wallet-address" name="wallet-address" required class="form-input" placeholder="0x... or im1...">
                 </div>
                 <div class="recaptcha-container">
-                    <div id="recaptcha-light"></div>
-                    <div id="recaptcha-dark" class="hidden"></div>
+                     <div id="recaptcha-light"></div>
+                     <div id="recaptcha-dark" class="hidden"></div>
                 </div>
                 <button type="submit" id="request-button" class="btn btn-cyan">
                     <span id="button-text">Request testnet IM</span>
                     <span id="loading-spinner" class="hidden">
-                        <svg class="spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
+                        <svg class="spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </span>
                 </button>
@@ -433,7 +322,7 @@
 
         <!-- imETH Faucet Panel (hidden by default) -->
         <div id="imeth-faucet-panel" class="faucet-panel hidden">
-            <div class="panel-header">
+             <div class="panel-header">
                 <h1 class="panel-title">imETH Faucet</h1>
                 <p class="panel-subtitle">Claim Sepolia imETH tokens directly.</p>
             </div>
@@ -446,13 +335,9 @@
                 <button id="request-imeth-btn" class="btn btn-cyan" disabled>
                     <span id="imeth-button-text">Request Sepolia imETH</span>
                     <span id="imeth-loading-spinner" class="hidden">
-                        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            style="height:1.25rem; width:1.25rem;">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
+                        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.25rem; width:1.25rem;">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </span>
                 </button>
@@ -464,7 +349,7 @@
 
     <script>
         // --- THEME SWITCHER & RECAPTCHA LOGIC ---
-        (function () {
+        (function() {
             const themeToggle = document.getElementById('theme-toggle');
             const sunIcon = document.getElementById('theme-icon-sun');
             const moonIcon = document.getElementById('theme-icon-moon');
@@ -500,14 +385,14 @@
                 applyTheme(newTheme);
             });
 
-            window.onRecaptchaLoad = function () {
+            window.onRecaptchaLoad = function() {
                 const siteKey = RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
                 if (!RECAPTCHA_SITE_KEY) {
                     console.warn("Using default reCAPTCHA test key. Create env.js or set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in Vercel.");
                 }
 
-                recaptchaLightId = grecaptcha.render('recaptcha-light', { 'sitekey': siteKey, 'theme': 'light' });
-                recaptchaDarkId = grecaptcha.render('recaptcha-dark', { 'sitekey': siteKey, 'theme': 'dark' });
+                recaptchaLightId = grecaptcha.render('recaptcha-light', { 'sitekey' : siteKey, 'theme' : 'light' });
+                recaptchaDarkId = grecaptcha.render('recaptcha-dark', { 'sitekey' : siteKey, 'theme' : 'dark' });
 
                 // Apply theme after widgets are rendered to show the correct one
                 const currentTheme = document.body.getAttribute('data-theme') || 'light';
@@ -547,7 +432,7 @@
         }
 
         // --- TAB SWITCHING LOGIC ---
-        (function () {
+        (function() {
             const generalTabBtn = document.getElementById('general-tab-btn');
             const imethTabBtn = document.getElementById('imeth-tab-btn');
             const generalPanel = document.getElementById('general-faucet-panel');
@@ -584,7 +469,7 @@
         })();
 
         // --- GENERAL FAUCET LOGIC ---
-        (function () {
+        (function() {
             const BUILD_FAUCET_BACKEND_URL = '__NEXT_PUBLIC_FAUCET_BACKEND_URL__';
             const BUILD_EXPLORER_URL = '__NEXT_PUBLIC_EXPLORER_URL__';
 
@@ -655,7 +540,7 @@
         })();
 
         // --- IMETH FAUCET (METAMASK) LOGIC ---
-        (function () {
+        (function() {
             const connectWalletBtn = document.getElementById('connect-wallet-btn');
             const requestImethBtn = document.getElementById('request-imeth-btn');
             const imethButtonText = document.getElementById('imeth-button-text');
@@ -681,9 +566,6 @@
                 }
 
                 try {
-                    // 1. switch to the correct network
-                    await checkAndSwitchNetwork();
-                    // 2. connect wallet
                     provider = new ethers.providers.Web3Provider(window.ethereum);
                     await provider.send("eth_requestAccounts", []);
                     signer = provider.getSigner();
@@ -693,6 +575,8 @@
                     connectedAddressEl.textContent = address;
                     connectWalletBtn.textContent = 'Wallet Connected';
                     connectWalletBtn.disabled = true;
+
+                    await checkAndSwitchNetwork();
 
                     contract = new ethers.Contract(IM_ETH_FAUCET_ADDR, IM_ETH_FAUCET_ABI, signer);
                     requestImethBtn.disabled = false;
@@ -775,5 +659,4 @@
         })();
     </script>
 </body>
-
 </html>
