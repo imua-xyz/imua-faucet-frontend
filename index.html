@@ -681,7 +681,8 @@
                 }
 
                 try {
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    // this `any` tells the provider that we will accept any network
+                    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
                     await provider.send("eth_requestAccounts", []);
                     signer = provider.getSigner();
                     const address = await signer.getAddress();
